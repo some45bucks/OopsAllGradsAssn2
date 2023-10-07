@@ -1,3 +1,5 @@
+import os
+from glob import glob
 from setuptools import find_packages, setup
 
 package_name = 'monocular_odometry'
@@ -10,17 +12,22 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        # Include all launch files
+        (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*')))
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='ros',
-    maintainer_email='Kytech@users.noreply.github.com',
+    maintainer='root',
+    maintainer_email='root@todo.todo',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'monocular_odometry = monocular_odometry.monocular_odometry:main'
+            'MCN = monocular_odometry.MCN:main',
+            'DRAC = monocular_odometry.DRAC:main',
+            'IMU = monocular_odometry.IMU:main',
+            'log = monocular_odometry.log:main'
         ],
     },
 )
