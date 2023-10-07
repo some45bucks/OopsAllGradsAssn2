@@ -7,7 +7,7 @@ output_folder = './undistorted_images/'
 calibration_path = './camera_calibration/calibration_data.txt'
 
 def get_calibration_data(path):
-    with open(calibration_path) as f:
+    with open(path) as f:
         lines = f.readlines()
         vectors = []
         for i in range(3):
