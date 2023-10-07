@@ -27,7 +27,7 @@ setup(
             'MCN = monocular_odometry.MCN:main',
             'IMU = monocular_odometry.IMU:main',
             'log = monocular_odometry.log:main',
-            'Camera = monocular_odometry.Camera:main'
+            # 'Camera = monocular_odometry.Camera:main'
         ],
     },
 )

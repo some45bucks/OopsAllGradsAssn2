@@ -25,7 +25,7 @@
   <node name="motor_control" pkg="monocular_odometry" exec="MCN" />
   <node name="IMU" pkg="monocular_odometry" exec="IMU" />
   <node name="log" pkg="monocular_odometry" exec="log" />
-  <node name="Camera" pkg="monocular_odometry" exec="Camera" />
+  <!-- <node name="Camera" pkg="monocular_odometry" exec="Camera" /> -->
   <!-- END monocular_odometry Package Nodes -->
 
   <!-- ROS Bridge Nodes -->

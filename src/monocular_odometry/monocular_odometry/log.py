@@ -14,7 +14,7 @@ class Log(Node):
     def __init__(self):
         super().__init__('log')
         self.log_subscription = self.create_subscription(Float32MultiArray, '/log', self.data_callback, 10)
-        self.log_subscription = self.create_subscription(Image, '/Image', self.image_callback, 10)
+        self.log_subscription = self.create_subscription(Image, '/image_raw', self.image_callback, 10)
         self.x = 0
         self.y = 0
         self.theta = 0

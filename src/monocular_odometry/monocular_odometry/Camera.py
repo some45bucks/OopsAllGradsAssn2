@@ -8,7 +8,7 @@ class CameraPublisher(Node):
   def __init__(self):
     super().__init__('camera_publisher')
     self.publisher = self.create_publisher(Image, '/Image', 10)
-    timer_period = 1/15 # take 15 fps
+    timer_period = 1/100 # take 100 fps
     self.timer = self.create_timer(timer_period, self.timer_callback)
     self.picam2 = Picamera2()
     self.picam2.start()
