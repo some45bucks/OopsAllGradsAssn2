@@ -54,7 +54,7 @@ class Log(Node):
         
     def image_callback(self, msg):
         
-        cv2.imwrite('./pathlogs/_'+str(self.prevTime)+'.jpeg', msg)
+        cv2.imwrite('../../images/_'+str(self.prevTime)+'.jpeg', msg)
 
 def main(args=None):
     rclpy.init(args=args)
