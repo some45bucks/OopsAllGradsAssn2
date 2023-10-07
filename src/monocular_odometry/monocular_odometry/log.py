@@ -18,7 +18,11 @@ class Log(Node):
         self.x = 0
         self.y = 0
         self.theta = 0
-        self.prevTime = 0
+        self.prevTime = time.time()
+        self.prevCaptureTime = 0
+        self.captureTime = 1/100
+        self.captureTimeCount = 0
+        self.canCapture = True
 
         self.stop = False
 
@@ -53,8 +57,19 @@ class Log(Node):
         self.prevTime = msg.data[2]
         
     def image_callback(self, msg):
+        self.captureTime += time.time() - self.prevTime
         
-        cv2.imwrite('../../images/_'+str(self.prevTime)+'.jpeg', msg)
+        while self.captureTimeCount >= self.captureTime:
+            self.canCapture = True
+            self.captureTimeCount -= self.captureTime
+            
+        if self.canCapture:
+            self.canCapture = False
+            cv2.imwrite('../../images/_'+str(self.prevTime)+'.jpeg', msg)
+            
+        self.prevTime = time.time()
+
+            
 
 def main(args=None):
     rclpy.init(args=args)
