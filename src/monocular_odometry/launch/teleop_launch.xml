@@ -30,7 +30,7 @@
   
   <!-- Camera Node -->
   <node name="picam_raw" pkg="v4l2_camera" exec="v4l2_camera_node">
-    <param name="image_size">[640,480]</param>
+    <param name="image_size" value="[640,480]" />
   </node>
 
   <!-- ROS Bridge Nodes -->
