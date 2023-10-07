@@ -25,9 +25,9 @@ setup(
     entry_points={
         'console_scripts': [
             'MCN = monocular_odometry.MCN:main',
-            'DRAC = monocular_odometry.DRAC:main',
             'IMU = monocular_odometry.IMU:main',
-            'log = monocular_odometry.log:main'
+            'log = monocular_odometry.log:main',
+            'Camera = monocular_odometry.Camera:main'
         ],
     },
 )
