@@ -1,0 +1,13 @@
+{
+    "ros.distro": "iron",
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}/build/monocular_odometry",
+        "${workspaceFolder}/install/monocular_odometry/lib/python3.10/site-packages",
+        "/opt/ros/iron/lib/python3.10/site-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/build/monocular_odometry",
+        "${workspaceFolder}/install/monocular_odometry/lib/python3.10/site-packages",
+        "/opt/ros/iron/lib/python3.10/site-packages"
+    ]
+}
