@@ -4,15 +4,25 @@ import numpy as np
 
 input_folder = './images/'
 output_folder = './undistorted_images/'
+calibration_path = './camera_calibration/calibration_data.txt'
 
+def get_calibration_data(path):
+    with open(calibration_path) as f:
+        lines = f.readlines()
+        vectors = []
+        for i in range(3):
+            vector = []
+            for j in lines[i].split():
+                vector.append(j)
+            vectors.append(vector)
+        camera_matrix = np.array(vectors)
+        vector = []
+        for i in lines[3].split():
+            vector.append(i)
+        distortion_coef = np.array(vector)
+    return camera_matrix, distortion_coef
 
-camera_matrix =  np.array(
-        [[],
-        [],
-        []]
-    )
-
-distortion_coef =  []
+camera_matrix , distortion_coef = get_calibration_data(calibration_path)
 
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
@@ -23,8 +33,8 @@ for image_file in image_files:
     img = cv2.imread(os.path.join(input_folder, image_file))
 
     h, w = img.shape[:2]
-    newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
-    dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
+    new_camera_matrix, roi = cv2.getOptimalNewCameraMatrix(camera_matrix, distortion_coef, (w, h), 1, (w, h))
+    dst = cv2.undistort(img, camera_matrix, distortion_coef, None, new_camera_matrix)
 
     x, y, w, h = roi
     dst = dst[y:y+h, x:x+w]
