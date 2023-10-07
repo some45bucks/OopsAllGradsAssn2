@@ -10,7 +10,7 @@ RUN groupadd --gid $USER_GID ros \
     && echo ros ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/ros \
     && chmod 0440 /etc/sudoers.d/ros
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y python3-pip neovim
+RUN apt-get install -y python3-pip neovim python3-opencv
 # Auto-source ROS base environment and colcon_cd command
 RUN echo "source /opt/ros/iron/setup.bash" >> /home/ros/.bashrc \
     && echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> /home/ros/.bashrc \
