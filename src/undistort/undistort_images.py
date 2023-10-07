@@ -13,7 +13,7 @@ def get_calibration_data(path):
         for i in range(3):
             vector = []
             for j in lines[i].split():
-                vector.append(j)
+                vector.append(float(j))
             vectors.append(vector)
         camera_matrix = np.array(vectors)
         vector = []

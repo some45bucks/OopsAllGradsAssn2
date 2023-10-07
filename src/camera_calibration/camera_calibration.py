@@ -25,3 +25,14 @@ for fname in images:
         cv.imshow('img', img)
         cv.waitKey(500)
 cv.destroyAllWindows()
+
+ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+
+with open('./calibration_data.txt', 'w') as f:
+    for i in mtx:
+        for j in i:
+            f.write(f'{j} \n')
+    for i in dist:
+        f.write(f'{i} \n')
+
+
