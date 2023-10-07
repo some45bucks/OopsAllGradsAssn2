@@ -27,6 +27,11 @@
   <node name="log" pkg="monocular_odometry" exec="log" />
   <!-- <node name="Camera" pkg="monocular_odometry" exec="Camera" /> -->
   <!-- END monocular_odometry Package Nodes -->
+  
+  <!-- Camera Node -->
+  <node name="picam_raw" pkg="v4l2_camera" exec="v4l2_camera_node">
+    <param name="image_size" value="[640,480]" />
+  </node>
 
   <!-- ROS Bridge Nodes -->
   <node name="rosbridge_websocket" pkg="rosbridge_server" exec="rosbridge_websocket" output="screen">
