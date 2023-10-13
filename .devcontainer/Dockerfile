@@ -21,5 +21,7 @@ ENV SHELL /bin/bash
 # * Anything else you want to do like clean up goes here *
 # ********************************************************
 
+RUN apt-get install -y ros-iron-rqt*
+
 USER ros
 CMD ["/bin/bash"]
