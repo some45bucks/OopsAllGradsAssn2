@@ -184,8 +184,8 @@ class MonoVideoOdometery(object):
 
 
 if __name__ == '__main__':
-    img_path = '../images'
-    pose_path ='../poses'
+    img_path = './images'
+    pose_path ='./pathlogs'
 
     focal = 718.8560
     pp = (607.1928, 185.2157)
