@@ -28,11 +28,11 @@
   <!-- END monocular_odometry Package Nodes -->
   
   <!-- Camera Nodes -->
-  <node name="picam_raw" pkg="v4l2_camera" exec="v4l2_camera_node">
+  <node name="picam" pkg="v4l2_camera" exec="v4l2_camera_node">
     <param name="image_size" value="[640,480]" />
     <param name="time_per_frame" value="[1,60]" />
   </node>
-  <node name="picam_capture" pkg="image_view" exec="extract_images">
+  <node name="picam_capture" pkg="image_view" exec="image_saver">
     <remap from="image" to="/image_raw" />
     <param name="filename_format" value="images/image%06d.%s" />
   </node>
