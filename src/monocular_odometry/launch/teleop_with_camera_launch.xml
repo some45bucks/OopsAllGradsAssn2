@@ -25,12 +25,20 @@
   <node name="motor_control" pkg="monocular_odometry" exec="MCN" />
   <node name="IMU" pkg="monocular_odometry" exec="IMU" />
   <node name="log" pkg="monocular_odometry" exec="log" />
-  <!-- <node name="Camera" pkg="monocular_odometry" exec="Camera" /> -->
   <!-- END monocular_odometry Package Nodes -->
   
-  <!-- Camera Node -->
-  <node name="picam_raw" pkg="v4l2_camera" exec="v4l2_camera_node">
+  <!-- Camera Nodes -->
+  <node name="picam" pkg="v4l2_camera" exec="v4l2_camera_node">
     <param name="image_size" value="[640,480]" />
+    <param name="time_per_frame" value="[1,60]" />
+  </node>
+  <node name="picam_capture" pkg="image_view" exec="image_saver">
+    <remap from="image" to="/image_raw" />
+    <param name="filename_format" value="images/image%06d.%s" />
+  </node>
+  <node name="picam_video" pkg="image_view" exec="video_recorder">
+    <remap from="image" to="/image_raw" />
+    <param name="filename" value="images/video.avi" />
   </node>
 
   <!-- ROS Bridge Nodes -->

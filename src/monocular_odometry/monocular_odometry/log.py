@@ -14,13 +14,13 @@ class Log(Node):
     def __init__(self):
         super().__init__('log')
         self.log_subscription = self.create_subscription(Float32MultiArray, '/log', self.data_callback, 10)
-        self.log_subscription = self.create_subscription(Image, '/image_raw', self.image_callback, 10)
+        #self.log_subscription = self.create_subscription(Image, '/image_raw', self.image_callback, 10)
         self.x = 0
         self.y = 0
         self.theta = 0
         self.prevTime = 0
         self.prevCaptureTime = time.time()
-        self.captureTime = 1/100
+        self.captureTime = 1/120
         self.captureTimeCount = 0
         self.canCapture = True
 
@@ -49,25 +49,26 @@ class Log(Node):
 
         self.x += xV * t
         self.y += yV * t
+        self.z = 0
         self.theta += av * t
 
         #writes data x pos, y pos, angle, and then the time stamp from 0
-        self.writer.writerow([self.x,self.y,self.theta,msg.data[2]])
+        self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]])
 
         self.prevTime = msg.data[2]
         
-    def image_callback(self, msg):
-        self.captureTime += time.time() - self.prevCaptureTime
+    # def image_callback(self, msg):
+    #     self.captureTime += time.time() - self.prevCaptureTime
         
-        while self.captureTimeCount >= self.captureTime:
-            self.canCapture = True
-            self.captureTimeCount -= self.captureTime
+    #     while self.captureTimeCount >= self.captureTime:
+    #         self.canCapture = True
+    #         self.captureTimeCount -= self.captureTime
             
-        if self.canCapture:
-            self.canCapture = False
-            cv2.imwrite('../../images/_'+str(self.prevCaptureTime)+'.jpeg', msg)
+    #     if self.canCapture:
+    #         self.canCapture = False
+    #         cv2.imwrite('../../images/_'+str(self.prevCaptureTime)+'.jpeg', msg)
             
-        self.prevCaptureTime = time.time()
+    #     self.prevCaptureTime = time.time()
 
             
 
