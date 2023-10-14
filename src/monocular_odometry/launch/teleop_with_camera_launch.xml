@@ -33,10 +33,11 @@
     <param name="time_per_frame" value="[1,60]" />
   </node>
   <node name="picam_capture" pkg="image_view" exec="extract_images">
-    <remap from="/image_raw" to="/image" />
+    <remap from="/image_raw" to="image" />
     <param name="filename_format" value="images/image%06d.%s" />
   </node>
   <node name="picam_video" pkg="image_view" exec="video_recorder">
+    <remap from="/image_raw" to="image" />
     <param name="filename" value="images/video.avi" />
   </node>
 
