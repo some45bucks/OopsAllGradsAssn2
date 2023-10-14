@@ -170,13 +170,13 @@ class MonoVideoOdometery(object):
         '''
 
         if self.id < 2:
-            self.old_frame = cv2.imread(self.file_path +str().zfill(6)+'.jpeg', 0)
-            self.current_frame = cv2.imread(self.file_path + str(1).zfill(6)+'.jpeg', 0)
+            self.old_frame = cv2.imread(self.file_path +str().zfill(6)+'.png', 0)
+            self.current_frame = cv2.imread(self.file_path + str(1).zfill(6)+'.png', 0)
             self.visual_odometery()
             self.id = 2
         else:
             self.old_frame = self.current_frame
-            self.current_frame = cv2.imread(self.file_path + str(self.id).zfill(6)+'.jpeg', 0)
+            self.current_frame = cv2.imread(self.file_path + str(self.id).zfill(6)+'.png', 0)
             self.visual_odometery()
             self.id += 1
 
