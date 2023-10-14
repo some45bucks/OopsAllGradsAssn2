@@ -149,11 +149,11 @@ class MonoVideoOdometery(object):
         Returns:
             float -- Scalar value allowing for scale estimation
         '''
-        pose = self.pose[self.id - 1].strip().split()
+        pose = self.pose[self.id - 1].strip().split(",")
         x_prev = float(pose[0])
         y_prev = float(pose[1])
         z_prev = float(pose[2])
-        pose = self.pose[self.id].strip().split()
+        pose = self.pose[self.id].strip().split(",")
         x = float(pose[0])
         y = float(pose[1])
         z = float(pose[2])
@@ -170,13 +170,13 @@ class MonoVideoOdometery(object):
         '''
 
         if self.id < 2:
-            self.old_frame = cv2.imread(self.file_path +str().zfill(6)+'.png', 0)
-            self.current_frame = cv2.imread(self.file_path + str(1).zfill(6)+'.png', 0)
+            self.old_frame = cv2.imread(self.file_path +str().zfill(6)+'.jpeg', 0)
+            self.current_frame = cv2.imread(self.file_path + str(1).zfill(6)+'.jpeg', 0)
             self.visual_odometery()
             self.id = 2
         else:
             self.old_frame = self.current_frame
-            self.current_frame = cv2.imread(self.file_path + str(self.id).zfill(6)+'.png', 0)
+            self.current_frame = cv2.imread(self.file_path + str(self.id).zfill(6)+'.jpeg', 0)
             self.visual_odometery()
             self.id += 1
 
@@ -184,8 +184,8 @@ class MonoVideoOdometery(object):
 
 
 if __name__ == '__main__':
-    img_path = ''
-    pose_path =''
+    img_path = '../images'
+    pose_path ='../poses'
 
     focal = 718.8560
     pp = (607.1928, 185.2157)
@@ -194,7 +194,7 @@ if __name__ == '__main__':
 
     # Parameters for lucas kanade optical flow
     lk_params = dict( winSize  = (21,21),
-                    criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 30, 0.01))
+                    criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01))
 
 
     # Create some random colors
@@ -206,8 +206,8 @@ if __name__ == '__main__':
     while(vo.hasNextFrame()):
 
         frame = vo.current_frame
-        cv.imshow('frame', frame)
-        k = cv.waitKey(1)
+        cv2.imshow('frame', frame)
+        k = cv2.waitKey(1)
         if k == 27:
             break
 
@@ -232,15 +232,15 @@ if __name__ == '__main__':
         draw_x, draw_y, draw_z = [int(round(x)) for x in mono_coord]
         true_x, true_y, true_z = [int(round(x)) for x in true_coord]
 
-        traj = cv.circle(traj, (true_x + 400, true_z + 100), 1, list((0, 0, 255)), 4)
-        traj = cv.circle(traj, (draw_x + 400, draw_z + 100), 1, list((0, 255, 0)), 4)
+        traj = cv2.circle(traj, (true_x + 400, true_z + 100), 1, list((0, 0, 255)), 4)
+        traj = cv2.circle(traj, (draw_x + 400, draw_z + 100), 1, list((0, 255, 0)), 4)
 
-        cv.putText(traj, 'Actual Position:', (140, 90), cv.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255), 1)
-        cv.putText(traj, 'Red', (270, 90), cv.FONT_HERSHEY_SIMPLEX, 0.5,(0, 0, 255), 1)
-        cv.putText(traj, 'Estimated Odometry Position:', (30, 120), cv.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255), 1)
-        cv.putText(traj, 'Green', (270, 120), cv.FONT_HERSHEY_SIMPLEX, 0.5,(0, 255, 0), 1)
+        cv2.putText(traj, 'Actual Position:', (140, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255), 1)
+        cv2.putText(traj, 'Red', (270, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(0, 0, 255), 1)
+        cv2.putText(traj, 'Estimated Odometry Position:', (30, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255), 1)
+        cv2.putText(traj, 'Green', (270, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(0, 255, 0), 1)
 
-        cv.imshow('trajectory', traj)
-    cv.imwrite("./images/trajectory.png", traj)
+        cv2.imshow('trajectory', traj)
+    cv2.imwrite("./images/trajectory.png", traj)
 
-    cv.destroyAllWindows()
+    cv2.destroyAllWindows()

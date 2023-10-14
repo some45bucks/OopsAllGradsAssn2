@@ -49,10 +49,11 @@ class Log(Node):
 
         self.x += xV * t
         self.y += yV * t
+        self.z = 0
         self.theta += av * t
 
         #writes data x pos, y pos, angle, and then the time stamp from 0
-        self.writer.writerow([self.x,self.y,self.theta,msg.data[2]])
+        self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]])
 
         self.prevTime = msg.data[2]
         
