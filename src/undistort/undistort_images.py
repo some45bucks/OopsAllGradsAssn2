@@ -2,9 +2,9 @@ import cv2
 import os
 import numpy as np
 
-input_folder = './images/'
+input_folder = './src/images/'
 output_folder = './undistorted_images/'
-calibration_path = './camera_calibration/calibration_data.txt'
+calibration_path = './src/camera_calibration/calibration_data.txt'
 
 def get_calibration_data(path):
     with open(path) as f:
@@ -16,10 +16,12 @@ def get_calibration_data(path):
                 vector.append(float(j))
             vectors.append(vector)
         camera_matrix = np.array(vectors)
+        vectors = []
         vector = []
         for i in lines[3].split():
-            vector.append(i)
-        distortion_coef = np.array(vector)
+            vector.append(float(i))
+        vectors.append(vector)
+        distortion_coef = np.array(vectors)
     return camera_matrix, distortion_coef
 
 camera_matrix , distortion_coef = get_calibration_data(calibration_path)

@@ -59,7 +59,9 @@ def save_calibration_data(mtx, dist):
                 f.write(f'{j} ')
             f.write('\n')
         for i in dist:
-            f.write(f'{i} \n')
+            for j in i:
+                f.write(f'{j} ')
+            f.write('\n')
 
 mtx, dist, images = calibrate_camera(6, 8)  
 save_calibration_data(mtx, dist)
