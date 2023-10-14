@@ -20,7 +20,7 @@ class Log(Node):
         self.theta = 0
         self.prevTime = 0
         self.prevCaptureTime = time.time()
-        self.captureTime = 1/100
+        self.captureTime = 1/120
         self.captureTimeCount = 0
         self.canCapture = True
 
