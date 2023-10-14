@@ -14,7 +14,7 @@ class Log(Node):
     def __init__(self):
         super().__init__('log')
         self.log_subscription = self.create_subscription(Float32MultiArray, '/log', self.data_callback, 10)
-        self.log_subscription = self.create_subscription(Image, '/image_raw', self.image_callback, 10)
+        #self.log_subscription = self.create_subscription(Image, '/image_raw', self.image_callback, 10)
         self.x = 0
         self.y = 0
         self.theta = 0
@@ -57,18 +57,18 @@ class Log(Node):
 
         self.prevTime = msg.data[2]
         
-    def image_callback(self, msg):
-        self.captureTime += time.time() - self.prevCaptureTime
+    # def image_callback(self, msg):
+    #     self.captureTime += time.time() - self.prevCaptureTime
         
-        while self.captureTimeCount >= self.captureTime:
-            self.canCapture = True
-            self.captureTimeCount -= self.captureTime
+    #     while self.captureTimeCount >= self.captureTime:
+    #         self.canCapture = True
+    #         self.captureTimeCount -= self.captureTime
             
-        if self.canCapture:
-            self.canCapture = False
-            cv2.imwrite('../../images/_'+str(self.prevCaptureTime)+'.jpeg', msg)
+    #     if self.canCapture:
+    #         self.canCapture = False
+    #         cv2.imwrite('../../images/_'+str(self.prevCaptureTime)+'.jpeg', msg)
             
-        self.prevCaptureTime = time.time()
+    #     self.prevCaptureTime = time.time()
 
             
 
