@@ -2,7 +2,7 @@ import cv2
 import os
 import numpy as np
 
-input_folder = './src/images/'
+input_folder = './images/'
 output_folder = './undistorted_images/'
 calibration_path = './src/camera_calibration/calibration_data.txt'
 

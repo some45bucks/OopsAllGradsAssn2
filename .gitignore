@@ -4,6 +4,7 @@ __pycache__/
 build/
 install/
 log/
+images/
 
 # Video recordings
 *.avi
