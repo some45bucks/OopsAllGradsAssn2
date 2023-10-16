@@ -10,7 +10,7 @@ def calibrate_camera(x, y):
     objpoints = []  # 3D point in real-world space
     imgpoints = []  # 2D points in the image plane
 
-    directory_path = './src/camera_calibration/calibration_images'
+    directory_path = './data/camera_calibration/calibration_images'
     full_directory_path = os.path.join(os.getcwd(), directory_path)
 
     images = glob.glob(os.path.join(full_directory_path, '**/*.jpg'), recursive=True)
@@ -32,7 +32,7 @@ def calibrate_camera(x, y):
     return mtx, dist, images 
 
 def undistort_images(mtx, dist, images):
-    undistorted_image_dir = './src/camera_calibration/undistorted_images'
+    undistorted_image_dir = './data/camera_calibration/undistorted_images'
     os.makedirs(undistorted_image_dir, exist_ok=True)
 
     for fname in images:
@@ -53,7 +53,7 @@ def undistort_images(mtx, dist, images):
         cv.imwrite(difference_image_path, difference_image)
 
 def save_calibration_data(mtx, dist):
-    with open('./src/camera_calibration/calibration_data.txt', 'w') as f:
+    with open('./data/camera_calibration/calibration_data.txt', 'w') as f:
         for i in mtx:
             for j in i:
                 f.write(f'{j} ')

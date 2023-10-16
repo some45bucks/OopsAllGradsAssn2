@@ -1,4 +1,5 @@
 from roslibpy import Message
+import math
 
 class VelocityMessage(Message):
     """
@@ -27,5 +28,5 @@ class VelocityMessage(Message):
 STOP_MESSAGE = VelocityMessage(0, 0)
 FORWARD_MESSAGE = VelocityMessage(0.3, 0)
 BACKWARD_MESSAGE = VelocityMessage(-0.3, 0)
-LEFT_MESSAGE = VelocityMessage(0, -90)
-RIGHT_MESSAGE = VelocityMessage(0, 90)
+LEFT_MESSAGE = VelocityMessage(0, -math.pi)
+RIGHT_MESSAGE = VelocityMessage(0, math.pi)
