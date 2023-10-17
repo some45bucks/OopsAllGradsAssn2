@@ -32,10 +32,10 @@
     <param name="image_size" value="[640,480]" />
     <param name="time_per_frame" value="[1,60]" />
   </node>
-  <node name="picam_capture" pkg="image_view" exec="image_saver">
+  <!-- <node name="picam_capture" pkg="image_view" exec="image_saver">
     <remap from="image" to="/image_raw" />
     <param name="filename_format" value="images/image%06d.%s" />
-  </node>
+  </node> -->
   <node name="picam_video" pkg="image_view" exec="video_recorder">
     <remap from="image" to="/image_raw" />
     <param name="filename" value="images/video.avi" />

@@ -1,5 +1,6 @@
 import sys
-from roslibpy import Ros, Topic, Message
+import time
+from roslibpy import Ros, Topic, Message, core
 from pynput.keyboard import Key, KeyCode, Listener as KeyboardListener
 
 from messages import VelocityMessage, STOP_MESSAGE, FORWARD_MESSAGE, BACKWARD_MESSAGE, LEFT_MESSAGE, RIGHT_MESSAGE
@@ -11,7 +12,16 @@ class RobotTeleOperator:
         self.is_key_down = False
     
     def start(self):
-        self.ros_client.run()
+        waiting = True
+        while waiting:
+            try:
+                waiting = False
+                self.ros_client.run()
+            except core.RosTimeoutError:
+                waiting = True
+                time.sleep(1)
+                print("waiting for connection...")
+                
         self.publisher = Topic(self.ros_client, '/motor_control', VelocityMessage.message_type)
     
     def __send_message(self, message: Message):

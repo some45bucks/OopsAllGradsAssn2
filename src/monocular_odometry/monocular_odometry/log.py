@@ -14,27 +14,25 @@ class Log(Node):
     def __init__(self):
         super().__init__('log')
         self.log_subscription = self.create_subscription(Float32MultiArray, '/log', self.data_callback, 10)
-        #self.log_subscription = self.create_subscription(Image, '/image_raw', self.image_callback, 10)
+        self.image_subscription = self.create_subscription(Image, '/image_raw', self.image_callback, 10)
         self.x = 0
         self.y = 0
         self.theta = 0
         self.prevTime = 0
-        self.prevCaptureTime = time.time()
-        self.captureTime = 1/120
-        self.captureTimeCount = 0
-        self.canCapture = True
-
+        self.imageCount = 0
         self.stop = False
 
         self.mem = []
+        
+        self.startCapture = False
 
         #find new file for runs
         i = 0
-        while os.path.exists(f"../pathlogs/logs_run{i}.csv"):
+        while os.path.exists(f"data/pathlogs/logs_run{i}.csv"):
             i+=1
 
         #open file
-        self.file = open(f"../pathlogs/logs_run{i}.csv", 'w')
+        self.file = open(f"data/pathlogs/logs_run{i}.csv", 'w')
 
         self.writer = csv.writer(self.file)
 
@@ -43,6 +41,9 @@ class Log(Node):
         v = msg.data[0]
         av = msg.data[1]
         t = msg.data[2] - self.prevTime
+
+        if v != 0 or av != 0:
+            self.startCapture = True
 
         xV = v * math.sin(self.theta)
         yV = v * math.cos(self.theta)
@@ -57,18 +58,11 @@ class Log(Node):
 
         self.prevTime = msg.data[2]
         
-    # def image_callback(self, msg):
-    #     self.captureTime += time.time() - self.prevCaptureTime
-        
-    #     while self.captureTimeCount >= self.captureTime:
-    #         self.canCapture = True
-    #         self.captureTimeCount -= self.captureTime
+    def image_callback(self, msg):
+        if self.startCapture:
             
-    #     if self.canCapture:
-    #         self.canCapture = False
-    #         cv2.imwrite('../../images/_'+str(self.prevCaptureTime)+'.jpeg', msg)
-            
-    #     self.prevCaptureTime = time.time()
+            cv2.imwrite('data/images/'+str(self.imageCount).zfill(6)+'.jpeg', msg)
+            self.imageCount+=1
 
             
 
