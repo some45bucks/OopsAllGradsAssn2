@@ -48,8 +48,7 @@ class Log(Node):
             self.startCapture = True
 
         if self.startCapture:
-            if self.firstTime == 0:
-                self.firstTime = msg.data[2]
+            
             #writes data x pos, y pos, angle, and then the time stamp from 0
             self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]])
             
@@ -61,7 +60,7 @@ class Log(Node):
             self.z = 0
             self.theta += av * t
 
-            self.prevTime = msg.data[2]
+        self.prevTime = msg.data[2]
         
     def image_callback(self, msg):
         if self.startCapture:
