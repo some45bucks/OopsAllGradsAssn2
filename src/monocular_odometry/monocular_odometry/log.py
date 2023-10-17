@@ -51,7 +51,7 @@ class Log(Node):
             if self.firstTime == 0:
                 self.firstTime = msg.data[2]
             #writes data x pos, y pos, angle, and then the time stamp from 0
-            self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]-self.firstTime])
+            self.writer.writerow([self.x,self.y,self.z,self.theta,float(msg.data[2])-float(self.firstTime)])
             
             xV = v * math.sin(self.theta)
             yV = v * math.cos(self.theta)
@@ -60,9 +60,6 @@ class Log(Node):
             self.y += yV * t
             self.z = 0
             self.theta += av * t
-
-            #writes data x pos, y pos, angle, and then the time stamp from 0
-            self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]])
 
             self.prevTime = msg.data[2]
         
