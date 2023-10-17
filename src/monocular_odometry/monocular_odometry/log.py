@@ -47,18 +47,16 @@ class Log(Node):
         if v != 0 or av != 0:
             self.startCapture = True
 
-        if self.startCapture:
-            
-            #writes data x pos, y pos, angle, and then the time stamp from 0
-            self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]])
-            
-            xV = v * math.sin(self.theta)
-            yV = v * math.cos(self.theta)
+        #writes data x pos, y pos, angle, and then the time stamp from 0
+        self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]])
+        
+        xV = v * math.sin(self.theta)
+        yV = v * math.cos(self.theta)
 
-            self.x += xV * t
-            self.y += yV * t
-            self.z = 0
-            self.theta += av * t
+        self.x += xV * t
+        self.y += yV * t
+        self.z = 0
+        self.theta += av * t
 
         self.prevTime = msg.data[2]
         
