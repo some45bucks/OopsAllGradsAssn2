@@ -178,13 +178,13 @@ class MonoVideoOdometery(object):
         '''Processes images in sequence frame by frame
         '''
         if self.id < 2:
-            self.old_frame = cv2.imread(self.file_path+"/image" +str(0).zfill(6)+'.jpg', 0)
-            self.current_frame = cv2.imread(self.file_path +"/image" + str(1).zfill(6)+'.jpg', 0)
+            self.old_frame = cv2.imread(self.file_path+"/" +str(0).zfill(6)+'.jpg', 0)
+            self.current_frame = cv2.imread(self.file_path +"/" + str(1).zfill(6)+'.jpg', 0)
             self.visual_odometery()
             self.id = 2
         else:
             self.old_frame = self.current_frame
-            self.current_frame = cv2.imread(self.file_path +"/image" + str(self.id).zfill(6)+'.jpg', 0)
+            self.current_frame = cv2.imread(self.file_path +"/" + str(self.id).zfill(6)+'.jpg', 0)
             self.visual_odometery()
             self.id += 1
 
@@ -193,7 +193,7 @@ class MonoVideoOdometery(object):
 
 if __name__ == '__main__':
     img_path = './data/images'
-    pose_path ='./data/pathlogs/hw2_pathlogs.csv'
+    pose_path ='./data/pathlogs/logs_run0.csv'
 
     focal = (572.0693897747975+572.0092019521778)/2
     pp = (302.4507642831329, 249.7364389652488)
@@ -226,14 +226,14 @@ if __name__ == '__main__':
         mono_coord = vo.get_mono_coordinates()
         true_coord = vo.get_true_coordinates()
 
-        # print("MSE Error: ", np.linalg.norm(mono_coord - true_coord))
-        # print("x: {}, y: {}, z: {}".format(*[str(pt) for pt in mono_coord]))
-        # print("true_x: {}, true_y: {}, true_z: {}".format(*[str(pt) for pt in true_coord]))
+        print("MSE Error: ", np.linalg.norm(mono_coord - true_coord))
+        print("x: {}, y: {}, z: {}".format(*[str(pt) for pt in mono_coord]))
+        print("true_x: {}, true_y: {}, true_z: {}".format(*[str(pt) for pt in true_coord]))
 
         draw_x, draw_y, draw_z = [int(round(200*x)) for x in mono_coord]
         true_x, true_y, true_z = [int(round(200*x)) for x in true_coord]
 
-        traj = cv2.circle(traj, (true_x+300, true_y+200), 1, list((0, 0, 255)), 4)
+        traj = cv2.circle(traj, (true_x+300, (true_y-1400)+200), 1, list((0, 0, 255)), 4)
         traj = cv2.circle(traj, (draw_x+300, draw_z+200), 1, list((0, 255, 0)), 4)
 
         cv2.putText(traj, 'Actual Position:', (140, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255), 1)

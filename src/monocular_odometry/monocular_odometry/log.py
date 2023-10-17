@@ -21,6 +21,7 @@ class Log(Node):
         self.theta = 0
         self.prevTime = 0
         self.imageCount = 0
+        self.firstTime = 0
         self.stop = False
         self.bridge = CvBridge()
         self.mem = []
@@ -42,22 +43,28 @@ class Log(Node):
         v = msg.data[0]
         av = msg.data[1]
         t = msg.data[2] - self.prevTime
-
+        
         if v != 0 or av != 0:
             self.startCapture = True
 
-        xV = v * math.sin(self.theta)
-        yV = v * math.cos(self.theta)
+        if self.startCapture:
+            if self.firstTime == 0:
+                self.firstTime = msg.data[2]
+            #writes data x pos, y pos, angle, and then the time stamp from 0
+            self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]-self.firstTime])
+            
+            xV = v * math.sin(self.theta)
+            yV = v * math.cos(self.theta)
 
-        self.x += xV * t
-        self.y += yV * t
-        self.z = 0
-        self.theta += av * t
+            self.x += xV * t
+            self.y += yV * t
+            self.z = 0
+            self.theta += av * t
 
-        #writes data x pos, y pos, angle, and then the time stamp from 0
-        self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]])
+            #writes data x pos, y pos, angle, and then the time stamp from 0
+            self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]])
 
-        self.prevTime = msg.data[2]
+            self.prevTime = msg.data[2]
         
     def image_callback(self, msg):
         if self.startCapture:
