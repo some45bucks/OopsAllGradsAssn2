@@ -1,0 +1,69 @@
+<launch>
+  <!-- ROS Bridge Configuration -->
+  <arg name="port" default="9090" />
+  <arg name="address" default="" />
+
+  <arg name="retry_startup_delay" default="5.0" />
+
+  <arg name="fragment_timeout" default="600" />
+  <arg name="delay_between_messages" default="0" />
+  <arg name="max_message_size" default="10000000" />
+  <arg name="unregister_timeout" default="10.0" />
+
+  <arg name="use_compression" default="false" />
+  <arg name="call_services_in_new_thread" default="false" />
+
+  <arg name="topics_glob" default="" />
+  <arg name="services_glob" default="" />
+  <arg name="params_glob" default="" />
+  <arg name="bson_only_mode" default="false" />
+
+  <arg unless="$(var bson_only_mode)" name="binary_encoder" default="default"/>
+  <!-- END ROS Bridge Configuration -->
+  
+  <!-- monocular_odometry Package Nodes -->
+  <node name="motor_control" pkg="monocular_odometry" exec="MCN" />
+  <node name="IMU" pkg="monocular_odometry" exec="IMU" />
+  <!-- <node name="log" pkg="monocular_odometry" exec="log" /> -->
+  <!-- END monocular_odometry Package Nodes -->
+  
+  <!-- Camera Nodes -->
+  <!-- <node name="picam" pkg="v4l2_camera" exec="v4l2_camera_node">
+    <param name="image_size" value="[640,480]" />
+    <param name="time_per_frame" value="[1,60]" />
+  </node> -->
+  <!-- <node name="picam_capture" pkg="image_view" exec="image_saver">
+    <remap from="image" to="/image_raw" />
+    <param name="filename_format" value="images/image%06d.%s" />
+  </node> -->
+  <!-- <node name="picam_video" pkg="image_view" exec="video_recorder">
+    <remap from="image" to="/image_raw" />
+    <param name="filename" value="images/video.avi" />
+  </node> -->
+
+  <!-- ROS Bridge Nodes -->
+  <node name="rosbridge_websocket" pkg="rosbridge_server" exec="rosbridge_websocket" output="screen">
+    <param name="port" value="$(var port)"/>
+    <param name="address" value="$(var address)"/>
+    <param name="retry_startup_delay" value="$(var retry_startup_delay)"/>
+    <param name="fragment_timeout" value="$(var fragment_timeout)"/>
+    <param name="delay_between_messages" value="$(var delay_between_messages)"/>
+    <param name="max_message_size" value="$(var max_message_size)"/>
+    <param name="unregister_timeout" value="$(var unregister_timeout)"/>
+    <param name="use_compression" value="$(var use_compression)"/>
+    <param name="call_services_in_new_thread" value="$(var call_services_in_new_thread)"/>
+
+    <param name="topics_glob" value="$(var topics_glob)"/>
+    <param name="services_glob" value="$(var services_glob)"/>
+    <param name="params_glob" value="$(var params_glob)"/>
+
+    <param name="bson_only_mode" value="$(var bson_only_mode)"/>
+  </node>
+
+  <node name="rosapi" pkg="rosapi" exec="rosapi_node">
+    <param name="topics_glob" value="$(var topics_glob)"/>
+    <param name="services_glob" value="$(var services_glob)"/>
+    <param name="params_glob" value="$(var params_glob)"/>
+  </node>
+  <!-- END ROS Bridge Nodes -->
+</launch>
