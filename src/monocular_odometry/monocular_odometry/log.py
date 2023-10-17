@@ -63,7 +63,7 @@ class Log(Node):
             self.z = 0
             self.theta += av * t
 
-            self.prevTime = msg.data[2]
+        self.prevTime = msg.data[2]
         
     def image_callback(self, msg):
         if self.startCapture:
