@@ -2,13 +2,13 @@ import rclpy
 from rclpy.node import Node
 import os
 import csv
-import rospy
 from std_msgs.msg import Float32MultiArray
 import smbus
 import time
 from sensor_msgs.msg import Image
 import math
 import cv2
+from cv_bridge import CvBridge
 
 
 class Log(Node):
@@ -22,7 +22,7 @@ class Log(Node):
         self.prevTime = 0
         self.imageCount = 0
         self.stop = False
-
+        self.bridge = CvBridge()
         self.mem = []
         
         self.startCapture = False
@@ -61,8 +61,8 @@ class Log(Node):
         
     def image_callback(self, msg):
         if self.startCapture:
-            rospy.loginfo("Picture Taken")
-            cv2.imwrite('data/images/'+str(self.imageCount).zfill(6)+'.jpeg', msg)
+            cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+            cv2.imwrite('data/images/'+str(self.imageCount).zfill(6)+'.jpeg', cv_image)
             self.imageCount+=1
 
             
