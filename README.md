@@ -11,7 +11,10 @@ for the current shell session (either automatically or manually). Follow the bel
 
 1. Run `colcon build --symlink-install` from the root of the repository (colcon workspace root).
 2. Run `source install/local_setup.bash`
-3. TODO: Execute the appropriate script
+3. Run `ros2 launch monocular_odometry teleop_with_camera_launch.xml`
+4. on a seperate computer then run `python3 teleop_controller-pc/teleop_client.py 144.39.167.74`
+
+The video and logs will start as soon as the robot moves for the first time
  
 ### Running in Development
 

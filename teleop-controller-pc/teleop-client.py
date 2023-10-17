@@ -13,15 +13,16 @@ class RobotTeleOperator:
     
     def start(self):
         waiting = True
+        print("waiting for connection...")
         while waiting:
             try:
                 waiting = False
                 self.ros_client.run()
             except core.RosTimeoutError:
                 waiting = True
-                time.sleep(1)
-                print("waiting for connection...")
-                
+                time.sleep(.1)
+                print(".",end="")
+        print("")        
         self.publisher = Topic(self.ros_client, '/motor_control', VelocityMessage.message_type)
     
     def __send_message(self, message: Message):

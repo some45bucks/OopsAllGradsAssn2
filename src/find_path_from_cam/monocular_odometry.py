@@ -158,11 +158,11 @@ class MonoVideoOdometery(object):
         Returns:
             float -- Scalar value allowing for scale estimation
         '''
-        pose = self.pose[int(self.id * (2774/772) - (2774/772))].strip().split(",")
+        pose = self.pose[int(self.id - 1)].strip().split(",")
         x_prev = float(pose[0])
         y_prev = float(pose[1])
         z_prev = float(pose[2])
-        pose = self.pose[int(self.id* (2774/772))].strip().split(",")
+        pose = self.pose[int(self.id)].strip().split(",")
         x = float(pose[0])
         y = float(pose[1])
         z = float(pose[2])
@@ -230,10 +230,10 @@ if __name__ == '__main__':
         print("x: {}, y: {}, z: {}".format(*[str(pt) for pt in mono_coord]))
         print("true_x: {}, true_y: {}, true_z: {}".format(*[str(pt) for pt in true_coord]))
 
-        draw_x, draw_y, draw_z = [int(round(200*x)) for x in mono_coord]
-        true_x, true_y, true_z = [int(round(200*x)) for x in true_coord]
+        draw_x, draw_y, draw_z = [int(round(100*x)) for x in mono_coord]
+        true_x, true_y, true_z = [int(round(100*x)) for x in true_coord]
 
-        traj = cv2.circle(traj, (true_x+300, (true_y-1400)+200), 1, list((0, 0, 255)), 4)
+        traj = cv2.circle(traj, (true_x+300, true_y+200), 1, list((0, 0, 255)), 4)
         traj = cv2.circle(traj, (draw_x+300, draw_z+200), 1, list((0, 255, 0)), 4)
 
         cv2.putText(traj, 'Actual Position:', (140, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255), 1)

@@ -25,7 +25,6 @@ class Log(Node):
         self.firstTime = 0
         self.stop = False
         self.bridge = CvBridge()
-        self.mem = []
         
         self.startCapture = False
 
@@ -47,6 +46,7 @@ class Log(Node):
         
         if v != 0 or av != 0:
             self.startCapture = True
+            
 
         if self.startCapture:
             if self.firstTime == 0:

@@ -8,3 +8,5 @@ images/
 
 # Video recordings
 *.avi
+# Images
+*.jpg
