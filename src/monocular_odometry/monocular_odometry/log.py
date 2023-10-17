@@ -62,7 +62,7 @@ class Log(Node):
     def image_callback(self, msg):
         if self.startCapture:
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-            cv2.imwrite('data/images/'+str(self.imageCount).zfill(6)+'.jpeg', cv_image)
+            cv2.imwrite('data/images/'+str(self.imageCount).zfill(6)+'.jpg', cv_image)
             self.imageCount+=1
 
             

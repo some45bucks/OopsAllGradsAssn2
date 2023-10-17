@@ -23,8 +23,6 @@ class RobotTeleOperator:
                 print("waiting for connection...")
                 
         self.publisher = Topic(self.ros_client, '/motor_control', VelocityMessage.message_type)
-        self.on_forward()
-        self.stop_robot()
     
     def __send_message(self, message: Message):
         if self.ros_client.is_connected:
