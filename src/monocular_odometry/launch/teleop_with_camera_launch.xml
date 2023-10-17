@@ -36,10 +36,10 @@
     <remap from="image" to="/image_raw" />
     <param name="filename_format" value="images/image%06d.%s" />
   </node> -->
-  <node name="picam_video" pkg="image_view" exec="video_recorder">
+  <!-- <node name="picam_video" pkg="image_view" exec="video_recorder">
     <remap from="image" to="/image_raw" />
     <param name="filename" value="images/video.avi" />
-  </node>
+  </node> -->
 
   <!-- ROS Bridge Nodes -->
   <node name="rosbridge_websocket" pkg="rosbridge_server" exec="rosbridge_websocket" output="screen">
