@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 import os
 import csv
+import rospy
 from std_msgs.msg import Float32MultiArray
 import smbus
 import time
@@ -60,7 +61,7 @@ class Log(Node):
         
     def image_callback(self, msg):
         if self.startCapture:
-            
+            rospy.loginfo("Picture Taken")
             cv2.imwrite('data/images/'+str(self.imageCount).zfill(6)+'.jpeg', msg)
             self.imageCount+=1
 
