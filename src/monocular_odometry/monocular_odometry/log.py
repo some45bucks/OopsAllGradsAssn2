@@ -18,6 +18,7 @@ class Log(Node):
         self.image_subscription = self.create_subscription(Image, '/image_raw', self.image_callback, 10)
         self.x = 0
         self.y = 0
+        self.z = 0
         self.theta = 0
         self.prevTime = 0
         self.imageCount = 0
@@ -47,23 +48,27 @@ class Log(Node):
         if v != 0 or av != 0:
             self.startCapture = True
 
-        #writes data x pos, y pos, angle, and then the time stamp from 0
-        self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]])
-        
-        xV = v * math.sin(self.theta)
-        yV = v * math.cos(self.theta)
+        if self.startCapture:
+            if self.firstTime == 0:
+                self.firstTime = msg.data[2]
+                
+            #writes data x pos, y pos, angle, and then the time stamp from 0
+            self.writer.writerow([self.x,self.y,self.z,self.theta,msg.data[2]-self.firstTime])
+            
+            xV = v * math.sin(self.theta)
+            yV = v * math.cos(self.theta)
 
-        self.x += xV * t
-        self.y += yV * t
-        self.z = 0
-        self.theta += av * t
+            self.x += xV * t
+            self.y += yV * t
+            self.z = 0
+            self.theta += av * t
 
-        self.prevTime = msg.data[2]
+            self.prevTime = msg.data[2]
         
     def image_callback(self, msg):
         if self.startCapture:
-            #cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-            #cv2.imwrite('data/images/'+str(self.imageCount).zfill(6)+'.jpg', cv_image)
+            cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+            cv2.imwrite('data/images/'+str(self.imageCount).zfill(6)+'.jpg', cv_image)
             self.imageCount+=1
 
             
