@@ -5,6 +5,8 @@ build/
 install/
 log/
 images/
+phoneImages10/
+phoneImages20/
 
 # Video recordings
 *.avi

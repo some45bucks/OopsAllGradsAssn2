@@ -33,10 +33,12 @@ class MonoVideoOdometery(object):
         self.focal = focal_length
         self.pp = pp
         self.R = np.zeros(shape=(3, 3))
+        self.r = np.zeros(shape=(3, 3))
         self.t = np.zeros(shape=(3, 1))
         self.p = np.zeros(shape=(3, 1))
         self.id = 0
         self.n_features = 0
+        self.prevDir = np.zeros(shape=(3, 1))
 
         try:
             if not all([".jpg" in x for x in os.listdir(img_file_path)]):
@@ -56,15 +58,7 @@ class MonoVideoOdometery(object):
 
 
     def hasNextFrame(self):
-        '''Used to determine whether there are remaining frames
-           in the folder to process
-        
-        Returns:
-            bool -- Boolean value denoting whether there are still 
-            frames in the folder to process
-        '''
-
-        return self.id < len(os.listdir(self.file_path)) 
+        return self.id
 
 
     def detect(self, img):
@@ -90,53 +84,60 @@ class MonoVideoOdometery(object):
         such that there are less than 2000 features remaining, a new feature
         detection is triggered. 
         '''
-
         if self.n_features < 2000:
             self.p0 = self.detect(self.old_frame)
 
+        if self.p0.shape[0] > 10 or self.id < 2:
+            # Calculate optical flow between frames, st holds status
+            # of points from frame to frame
+            self.p1, st, err = cv2.calcOpticalFlowPyrLK(self.old_frame, self.current_frame, self.p0, None, **self.lk_params)
+            
+            # cameraMatrix = np.array([[572.0693897747975, 0.0, 302.4507642831329], 
+            #                 [0.0, 572.0092019521778, 249.7364389652488], 
+            #                 [0.0, 0.0, 1.0],])
+            
+            # dist = np.array([0.13630182840533106, -0.5755884955905456, 0.0027058610814106043, -0.004054602740872948, 0.6278866433969468])
+            
+            # Save the good points from the optical flow
+            self.good_old = self.p0[st == 1]
+            self.good_new = self.p1[st == 1]
 
-        # Calculate optical flow between frames, st holds status
-        # of points from frame to frame
-        self.p1, st, err = cv2.calcOpticalFlowPyrLK(self.old_frame, self.current_frame, self.p0, None, **self.lk_params)
-        
-        cameraMatrix = np.array([[572.0693897747975, 0.0, 302.4507642831329], 
-                        [0.0, 572.0092019521778, 249.7364389652488], 
-                        [0.0, 0.0, 1.0],])
-        
-        dist = np.array([0.13630182840533106, -0.5755884955905456, 0.0027058610814106043, -0.004054602740872948, 0.6278866433969468])
-        
-        # Save the good points from the optical flow
-        self.good_old = self.p0[st == 1]
-        self.good_new = self.p1[st == 1]
-
-        self.good_old = cv2.undistortPoints(np.expand_dims(self.good_old, axis=1), cameraMatrix=cameraMatrix, distCoeffs=dist)
-        self.good_new = cv2.undistortPoints(np.expand_dims(self.good_new, axis=1), cameraMatrix=cameraMatrix, distCoeffs=dist)
-        
-        # If the frame is one of first two, we need to initalize
-        # our t and R vectors so behavior is different
-        
-        if self.id < 2:
-            E, _ = cv2.findEssentialMat(self.good_new, self.good_old, self.focal,self.pp, cv2.RANSAC, 0.999, 1.0, None)
-            _, self.R, self.t, _ = cv2.recoverPose(E, self.good_old, self.good_new, focal=self.focal,pp=self.pp)
+            # self.good_old = cv2.undistortPoints(self.good_old, cameraMatrix=cameraMatrix, distCoeffs=dist)
+            # self.good_new = cv2.undistortPoints(self.good_new, cameraMatrix=cameraMatrix, distCoeffs=dist)
+            
+            E, _ = cv2.findEssentialMat(self.good_new, self.good_old, self.focal, self.pp, cv2.RANSAC, 0.99999, 1, None)
+            _, R, t, _ = cv2.recoverPose(E, self.good_old, self.good_new, focal=self.focal, pp=self.pp, mask=None)
+            # If the frame is one of first two, we need to initalize
+            # our t and R vectors so behavior is different
+            if self.id < 2:
+                self.r = R
+                self.t = t
+            else:
+                
+                absolute_scale = self.get_absolute_scale()
+                if (abs(t[1][0]) > abs(t[0][0]) and abs(t[1][0]) > abs(t[2][0])):
+                    self.prevDir = self.r.dot(t)
+                    self.p = self.p + absolute_scale*self.prevDir
+                    self.r = self.r.dot(R)
+                else:
+                    self.p = self.p + absolute_scale*self.prevDir
+                    
+            # Save the total number of good features
+            self.n_features = self.good_new.shape[0]
         else:
-            E, _ = cv2.findEssentialMat(self.good_new, self.good_old, self.focal,self.pp, cv2.RANSAC, 0.999, 1.0, None)
-            _, self.R, self.t, _ = cv2.recoverPose(E, self.good_old, self.good_new, focal=self.focal,pp=self.pp)
-
             absolute_scale = self.get_absolute_scale()
-            #if (absolute_scale > 0.1 and abs(self.t[2][0]) > abs(self.t[0][0]) and abs(self.t[2][0]) > abs(self.t[1][0])):
-            self.p = self.p + absolute_scale*self.R.dot(self.t)
-                # self.R = self.R.dot(self.R)
+            self.p = self.p + absolute_scale*self.prevDir
+                
 
-        # Save the total number of good features
-        self.n_features = self.good_new.shape[0]
+        
 
 
     def get_mono_coordinates(self):
         # We multiply by the diagonal matrix to fix our vector
         # onto same coordinate axis as true values
-        diag = np.array([[-1, 0, 0],
+        diag = np.array([[1, 0, 0],
                         [0, -1, 0],
-                        [0, 0, -1]])
+                        [0, 0, 1]])
         adj_coord = np.matmul(diag, self.p)
 
         return adj_coord.flatten()
@@ -178,11 +179,19 @@ class MonoVideoOdometery(object):
         '''Processes images in sequence frame by frame
         '''
         if self.id < 2:
+            # self.old_frame = cv2.imread(self.file_path+"/ezgif-frame-" +str(1).zfill(3)+'.jpg', 0)
+            # self.current_frame = cv2.imread(self.file_path +"/ezgif-frame-" + str(2).zfill(3)+'.jpg', 0)
+            # self.visual_odometery()
+            # self.id = 3
             self.old_frame = cv2.imread(self.file_path+"/" +str(0).zfill(6)+'.jpg', 0)
             self.current_frame = cv2.imread(self.file_path +"/" + str(1).zfill(6)+'.jpg', 0)
             self.visual_odometery()
             self.id = 2
         else:
+            # self.old_frame = self.current_frame
+            # self.current_frame = cv2.imread(self.file_path +"/ezgif-frame-" + str(self.id).zfill(3)+'.jpg', 0)
+            # self.visual_odometery()
+            # self.id += 1
             self.old_frame = self.current_frame
             self.current_frame = cv2.imread(self.file_path +"/" + str(self.id).zfill(6)+'.jpg', 0)
             self.visual_odometery()
@@ -194,9 +203,16 @@ class MonoVideoOdometery(object):
 if __name__ == '__main__':
     img_path = './data/images'
     pose_path ='./data/pathlogs/logs_run0.csv'
-
+    max = 539
     focal = (572.0693897747975+572.0092019521778)/2
     pp = (302.4507642831329, 249.7364389652488)
+    
+    # img_path = './data/phoneImages20'
+    # pose_path ='./data/pathlogs/logs_run0.csv'
+    # max = 200
+    # focal = 1
+    # pp = (0, 0)
+    
     R_total = np.zeros((3, 3))
     t_total = np.empty(shape=(3, 1))
     
@@ -213,7 +229,7 @@ if __name__ == '__main__':
     vo = MonoVideoOdometery(img_path, pose_path, focal, pp, lk_params)
     traj = np.zeros(shape=(600, 800, 3))
 
-    while(vo.hasNextFrame()):
+    while(max > vo.hasNextFrame()):
 
         frame = vo.current_frame
         cv2.imshow('frame', frame)
@@ -230,11 +246,12 @@ if __name__ == '__main__':
         print("x: {}, y: {}, z: {}".format(*[str(pt) for pt in mono_coord]))
         print("true_x: {}, true_y: {}, true_z: {}".format(*[str(pt) for pt in true_coord]))
 
-        draw_x, draw_y, draw_z = [int(round(100*x)) for x in mono_coord]
-        true_x, true_y, true_z = [int(round(100*x)) for x in true_coord]
+        draw_x, draw_y, draw_z = [int(round(200*x)) for x in mono_coord]
+        true_x, true_y, true_z = [int(round(200*x)) for x in true_coord]
 
         traj = cv2.circle(traj, (true_x+300, true_y+200), 1, list((0, 0, 255)), 4)
-        traj = cv2.circle(traj, (draw_x+300, draw_z+200), 1, list((0, 255, 0)), 4)
+        
+        traj = cv2.circle(traj, (draw_x+300, draw_y+200), 1, list((0, 255, 0)), 4)
 
         cv2.putText(traj, 'Actual Position:', (140, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255), 1)
         cv2.putText(traj, 'Red', (270, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(0, 0, 255), 1)
