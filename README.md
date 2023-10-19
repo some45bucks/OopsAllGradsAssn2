@@ -55,12 +55,10 @@ if VSCode intellisense is not resolving import paths correctly, though this is u
 (See the `ROS:` commands in `F1` menu for which commands will update these options in `.vscode/settings` if you need to manually trigger
 these reloads)
 
-#### Running
+#### Running ROS Commands
 
-Start the ROS daemon by opening the `F1` palette and typing
-`ROS: Start`. You can now use a regular terminal to work with ROS as if you were working on the robot platform (minus the robot
-hardware. See previous section for details on how to run on a physical robot). Starting ROS typically only needs to be done once
-after launching the dev container (check the VSCode status bar to see if there is a check next to the ROS version).
+The integrated VSCode terminal will now connect to the docker container that is running the ROS environment. You can use the VSCode terminal
+in the same way you would when running ROS on a bare metal install.
 
 #### Using the ROS Extension in VSCode
 
