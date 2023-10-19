@@ -4,6 +4,26 @@
 
 This repository is configured to run both on a ROS robot directly and in a containerized VSCode environment.
 
+You can also just run the monocular odometry code separately from everything else.
+
+#### DATA
+You can get the data here: https://drive.google.com/drive/folders/10pkFE-y-wk_2PBvocVuUoggc64GXfAjW?usp=share_link. just put the data folder in the root of the project
+
+it has a video of the phone vide which shows a 90 degree turn and then the images and logs related to each trajectory file.
+
+There are 4 trajectory files.
+
+1. `trajectoryPhone10.png` this is the path from the 90 degree turn video at 10 fps
+2. `trajectoryPhone20.png` this is the path from the 90 degree turn video at 20 fps
+3. `trajectoryPyCam10Plus.png` this is the path from the robot driving in a square, where the red path is based on what the robot thinks is's velocity is. The green is constructed from the camera. This version is setting the cutoff to min 10 features.
+4. `trajectoryPyCam40Plus.png` This version of the same path but with the cutoff at 40 features.
+
+### Running the Monocular Odometry Code
+
+To just run the monocular odometry code just run `pip install -r src/find_path_from_cam/requirements.txt` first to install the required packages
+
+It is set to show the robot camera and path using using a feature cutoff of 40 (disregards the frame unless the feature count is higher than 40 and just assumes a straight direction). If you want to see the phone path just turn the varible `ROBOT = False` on line 200. to run it use `python3 src/find_path_from_camera/monocular_odometry.py`
+
 ### Running on the Robot
 
 For running this package on the robot, ensure that `/opt/ros/<distro>/setup.bash` has been sourced
@@ -14,7 +34,7 @@ for the current shell session (either automatically or manually). Follow the bel
 3. Run `ros2 launch monocular_odometry teleop_with_camera_launch.xml`
 4. on a seperate computer then run `python3 teleop_controller-pc/teleop_client.py 144.39.167.74`
 
-The video and logs will start as soon as the robot moves for the first time
+--> The video and logs will start as soon as the robot moves for the first time <--
  
 ### Running in Development
 

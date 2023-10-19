@@ -35,7 +35,7 @@ class MonoVideoOdometery(object):
         self.R = np.zeros(shape=(3, 3))
         self.r = np.zeros(shape=(3, 3))
         self.t = np.zeros(shape=(3, 1))
-        self.p = np.zeros(shape=(3, 1))
+        self.position = np.zeros(shape=(3, 1))
         self.id = 0
         self.n_features = 0
         self.prevDir = np.zeros(shape=(3, 1))
@@ -84,29 +84,21 @@ class MonoVideoOdometery(object):
         such that there are less than 2000 features remaining, a new feature
         detection is triggered. 
         '''
-        if self.n_features < 2000:
+        if self.n_features < 2000: #very optimistic
             self.p0 = self.detect(self.old_frame)
 
-        if self.p0.shape[0] > 10 or self.id < 2:
+        if self.p0.shape[0] > FEATURE_CUT_OFF or self.id < 2: #feature cutoff to ignore bad data (exept for the first time becuase we need inital heading)
             # Calculate optical flow between frames, st holds status
             # of points from frame to frame
             self.p1, st, err = cv2.calcOpticalFlowPyrLK(self.old_frame, self.current_frame, self.p0, None, **self.lk_params)
             
-            # cameraMatrix = np.array([[572.0693897747975, 0.0, 302.4507642831329], 
-            #                 [0.0, 572.0092019521778, 249.7364389652488], 
-            #                 [0.0, 0.0, 1.0],])
-            
-            # dist = np.array([0.13630182840533106, -0.5755884955905456, 0.0027058610814106043, -0.004054602740872948, 0.6278866433969468])
-            
             # Save the good points from the optical flow
             self.good_old = self.p0[st == 1]
             self.good_new = self.p1[st == 1]
-
-            # self.good_old = cv2.undistortPoints(self.good_old, cameraMatrix=cameraMatrix, distCoeffs=dist)
-            # self.good_new = cv2.undistortPoints(self.good_new, cameraMatrix=cameraMatrix, distCoeffs=dist)
             
             E, _ = cv2.findEssentialMat(self.good_new, self.good_old, self.focal, self.pp, cv2.RANSAC, 0.99999, 1, None)
             _, R, t, _ = cv2.recoverPose(E, self.good_old, self.good_new, focal=self.focal, pp=self.pp, mask=None)
+
             # If the frame is one of first two, we need to initalize
             # our t and R vectors so behavior is different
             if self.id < 2:
@@ -115,22 +107,21 @@ class MonoVideoOdometery(object):
             else:
                 
                 absolute_scale = self.get_absolute_scale()
-                if (abs(t[1][0]) > abs(t[0][0]) and abs(t[1][0]) > abs(t[2][0])):
+                if (abs(t[1][0]) > abs(t[0][0]) and abs(t[1][0]) > abs(t[2][0])): #assumes that we move forward only
+                    #update based on pose
                     self.prevDir = self.r.dot(t)
-                    self.p = self.p + absolute_scale*self.prevDir
+                    self.position = self.position + absolute_scale*self.prevDir
                     self.r = self.r.dot(R)
                 else:
-                    self.p = self.p + absolute_scale*self.prevDir
+                    #bad prob just noise so just move in the same direction
+                    self.position = self.position + absolute_scale*self.prevDir
                     
             # Save the total number of good features
             self.n_features = self.good_new.shape[0]
         else:
+            #bad frame so just ignore it
             absolute_scale = self.get_absolute_scale()
-            self.p = self.p + absolute_scale*self.prevDir
-                
-
-        
-
+            self.position = self.position + absolute_scale*self.prevDir
 
     def get_mono_coordinates(self):
         # We multiply by the diagonal matrix to fix our vector
@@ -138,7 +129,7 @@ class MonoVideoOdometery(object):
         diag = np.array([[1, 0, 0],
                         [0, -1, 0],
                         [0, 0, 1]])
-        adj_coord = np.matmul(diag, self.p)
+        adj_coord = np.matmul(diag, self.position)
 
         return adj_coord.flatten()
 
@@ -159,59 +150,71 @@ class MonoVideoOdometery(object):
         Returns:
             float -- Scalar value allowing for scale estimation
         '''
-        pose = self.pose[int(self.id - 1)].strip().split(",")
-        x_prev = float(pose[0])
-        y_prev = float(pose[1])
-        z_prev = float(pose[2])
-        pose = self.pose[int(self.id)].strip().split(",")
-        x = float(pose[0])
-        y = float(pose[1])
-        z = float(pose[2])
+        if ROBOT:
+            pose = self.pose[int(self.id - 1)].strip().split(",")
+            x_prev = float(pose[0])
+            y_prev = float(pose[1])
+            z_prev = float(pose[2])
+            pose = self.pose[int(self.id)].strip().split(",")
+            x = float(pose[0])
+            y = float(pose[1])
+            z = float(pose[2])
 
-        true_vect = np.array([[x], [y], [z]])
-        self.true_coord = true_vect
-        prev_vect = np.array([[x_prev], [y_prev], [z_prev]])
-        
-        return np.linalg.norm(true_vect - prev_vect)
+            true_vect = np.array([[x], [y], [z]])
+            self.true_coord = true_vect
+            prev_vect = np.array([[x_prev], [y_prev], [z_prev]])
+            
+            return np.linalg.norm(true_vect - prev_vect)
+        else:
+            return .015 # just assuming constant distance between each step
 
 
     def process_frame(self):
         '''Processes images in sequence frame by frame
         '''
         if self.id < 2:
-            # self.old_frame = cv2.imread(self.file_path+"/ezgif-frame-" +str(1).zfill(3)+'.jpg', 0)
-            # self.current_frame = cv2.imread(self.file_path +"/ezgif-frame-" + str(2).zfill(3)+'.jpg', 0)
-            # self.visual_odometery()
-            # self.id = 3
-            self.old_frame = cv2.imread(self.file_path+"/" +str(0).zfill(6)+'.jpg', 0)
-            self.current_frame = cv2.imread(self.file_path +"/" + str(1).zfill(6)+'.jpg', 0)
-            self.visual_odometery()
-            self.id = 2
+            if ROBOT:
+                self.old_frame = cv2.imread(self.file_path+"/" +str(0).zfill(6)+'.jpg', 0)
+                self.current_frame = cv2.imread(self.file_path +"/" + str(1).zfill(6)+'.jpg', 0)
+                self.visual_odometery()
+                self.id = 2
+            else:
+                self.old_frame = cv2.imread(self.file_path+"/ezgif-frame-" +str(1).zfill(3)+'.jpg', 0)
+                self.current_frame = cv2.imread(self.file_path +"/ezgif-frame-" + str(2).zfill(3)+'.jpg', 0)
+                self.visual_odometery()
+                self.id = 3
         else:
-            # self.old_frame = self.current_frame
-            # self.current_frame = cv2.imread(self.file_path +"/ezgif-frame-" + str(self.id).zfill(3)+'.jpg', 0)
-            # self.visual_odometery()
-            # self.id += 1
-            self.old_frame = self.current_frame
-            self.current_frame = cv2.imread(self.file_path +"/" + str(self.id).zfill(6)+'.jpg', 0)
-            self.visual_odometery()
-            self.id += 1
+            
+            if ROBOT:
+                self.old_frame = self.current_frame
+                self.current_frame = cv2.imread(self.file_path +"/" + str(self.id).zfill(6)+'.jpg', 0)
+                self.visual_odometery()
+                self.id += 1
+            else:
+                self.old_frame = self.current_frame
+                self.current_frame = cv2.imread(self.file_path +"/ezgif-frame-" + str(self.id).zfill(3)+'.jpg', 0)
+                self.visual_odometery()
+                self.id += 1
 
 
-
+ROBOT = True
+FRAME_RATE = 20 #phone only can only be 10 or 20
+FEATURE_CUT_OFF = 40
 
 if __name__ == '__main__':
-    img_path = './data/images'
-    pose_path ='./data/pathlogs/logs_run0.csv'
-    max = 539
-    focal = (572.0693897747975+572.0092019521778)/2
-    pp = (302.4507642831329, 249.7364389652488)
-    
-    # img_path = './data/phoneImages20'
-    # pose_path ='./data/pathlogs/logs_run0.csv'
-    # max = 200
-    # focal = 1
-    # pp = (0, 0)
+
+    if ROBOT:
+        img_path = './data/images'
+        pose_path ='./data/pathlogs/logs_run0.csv'
+        max = 539
+        focal = (572.0693897747975+572.0092019521778)/2 #generated from the calibration code
+        pp = (302.4507642831329, 249.7364389652488) #generated from the calibration code
+    else:
+        img_path = f'./data/phoneImages{20}'
+        pose_path ='./data/pathlogs/logs_run0.csv' #not used, just greasing the gears
+        max = FRAME_RATE * 10
+        focal = 1 #default
+        pp = (0, 0) #default
     
     R_total = np.zeros((3, 3))
     t_total = np.empty(shape=(3, 1))
@@ -223,12 +226,13 @@ if __name__ == '__main__':
                     criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01))
 
 
-    # Create some random colors
+    # Create some "random" colors
     color = np.random.randint(0,255,(5000,3))
 
     vo = MonoVideoOdometery(img_path, pose_path, focal, pp, lk_params)
     traj = np.zeros(shape=(600, 800, 3))
 
+    # changed so we can run without logs being annoying
     while(max > vo.hasNextFrame()):
 
         frame = vo.current_frame
@@ -259,6 +263,6 @@ if __name__ == '__main__':
         cv2.putText(traj, 'Green', (270, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5,(0, 255, 0), 1)
 
         cv2.imshow('trajectory', traj)
-    cv2.imwrite("./trajectory.png", traj)
+    cv2.imwrite("./new_trajectory.png", traj)
 
     cv2.destroyAllWindows()
