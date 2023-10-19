@@ -32,7 +32,8 @@ for the current shell session (either automatically or manually). Follow the bel
 1. Run `colcon build --symlink-install` from the root of the repository (colcon workspace root).
 2. Run `source install/local_setup.bash`
 3. Run `ros2 launch monocular_odometry teleop_with_camera_launch.xml`
-4. on a seperate computer then run `python3 teleop_controller-pc/teleop_client.py 144.39.167.74`
+4. If you have not already, install the teleop client python dependencies using `pip install -r teleop-controller-pc/requirements.txt` on the machine that will control the robot. It is recommended to create a virtual environment to install these dependencies into.
+5. To run the teleop client on the machine and connect to the robot, run `python3 teleop-controller-pc/teleop-client.py 144.39.167.74`, substituting the example IP address for the IP address or hostname of the robot on the network.
 
 --> The video and logs will start as soon as the robot moves for the first time <--
  
